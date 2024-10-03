@@ -15,6 +15,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,14 +24,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.alltrails.atlunch.R
 import com.alltrails.atlunch.data.model.Restaurant
+import com.alltrails.atlunch.ui.discover.DiscoverViewModel
 import com.alltrails.atlunch.ui.theme.AtLunchTheme
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
-fun ListScreen(modifier: Modifier = Modifier, restaurants: List<Restaurant>) {
+fun ListScreen(
+    modifier: Modifier = Modifier,
+    viewModel: DiscoverViewModel = hiltViewModel()
+) {
+    val state by viewModel.restaurants.collectAsState()
+
     LazyColumn(modifier = modifier, contentPadding = PaddingValues(vertical = 8.dp)) {
+        // TODO show empty screen when there are no restaurants.
+        val restaurants = if (state.isSuccess) state.getOrThrow() else emptyList()
         items(restaurants) {
             RestaurantCard(restaurant = it)
         }
@@ -48,7 +59,7 @@ fun RestaurantCard(restaurant: Restaurant) {
             .fillMaxWidth()
     ) {
         Row(modifier = Modifier.padding(16.dp)) {
-            // TODO implement loading image.
+            // TODO implement loading image using Coil.
             CardMetaData(restaurant)
         }
     }
@@ -122,6 +133,6 @@ private fun ListScreenPreview() {
     )
 
     AtLunchTheme {
-        ListScreen(restaurants = restaurants)
+        ListScreen()
     }
 }

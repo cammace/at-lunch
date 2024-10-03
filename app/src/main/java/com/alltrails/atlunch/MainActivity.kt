@@ -26,7 +26,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,8 +39,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.alltrails.atlunch.navigation.MapScreen
+import com.alltrails.atlunch.navigation.NavigationStack
 import com.alltrails.atlunch.ui.discover.DiscoverViewModel
-import com.alltrails.atlunch.ui.discover.list.ListScreen
 import com.alltrails.atlunch.ui.discover.map.MapScreen
 import com.alltrails.atlunch.ui.theme.AtLunchTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,15 +59,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AtLunchTheme {
-                val state by viewModel.restaurants.collectAsState()
-
-                Scaffold(
-                    topBar = { Header() },
-                    floatingActionButton = { ToggleListMapFab { } },
+                val navController = rememberNavController()
+                Scaffold(topBar = { Header() },
+                    floatingActionButton = { ToggleListMapFab(navController) { } },
                     floatingActionButtonPosition = FabPosition.Center,
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
-                    ListScreen(modifier = Modifier.padding(innerPadding), restaurants = if (state.isSuccess) state.getOrThrow() else emptyList())
+                    NavigationStack(modifier = Modifier.padding(innerPadding), navController = navController)
                 }
             }
         }
@@ -73,26 +74,25 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Header() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 20.dp)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.logo_lockup),
-            contentDescription = null, // decorative element
-        )
-        SearchBar(
-            query = TextFieldValue("Search restaurants"),
-            onQueryChange = { },
-            searchFocused = false,
-            onSearchFocusChange = { },
-            onClearQuery = { },
-            searching = false,
-            modifier = Modifier.padding(all = 16.dp)
-        )
-        HorizontalDivider(color = Color(0xFFDBDAD2))
+    Surface {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.logo_lockup),
+                contentDescription = null, // decorative element
+            )
+            SearchBar(query = TextFieldValue("Search restaurants"),
+                onQueryChange = { },
+                searchFocused = false,
+                onSearchFocusChange = { },
+                onClearQuery = { },
+                modifier = Modifier.padding(all = 16.dp)
+            )
+            HorizontalDivider(color = Color(0xFFDBDAD2))
+        }
     }
 }
 
@@ -103,7 +103,6 @@ private fun SearchBar(
     searchFocused: Boolean,
     onSearchFocusChange: (Boolean) -> Unit,
     onClearQuery: () -> Unit,
-    searching: Boolean,
     modifier: Modifier = Modifier
 ) {
     var value by remember { mutableStateOf("") }
@@ -130,8 +129,7 @@ private fun SearchBar(
                 contentDescription = null // decorative element
             )
             Spacer(Modifier.width(8.dp))
-            BasicTextField(
-                value = query,
+            BasicTextField(value = query,
                 textStyle = MaterialTheme.typography.bodyMedium,
                 singleLine = true,
                 onValueChange = onQueryChange,
@@ -139,25 +137,32 @@ private fun SearchBar(
                     .weight(1f)
                     .onFocusChanged {
                         onSearchFocusChange(it.isFocused)
-                    }
-            )
+                    })
         }
     }
 }
 
 @Composable
-fun ToggleListMapFab(modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun ToggleListMapFab(navController: NavController = rememberNavController(), onClick: () -> Unit) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val isMapScreen = currentBackStackEntry?.destination?.route == MapScreen::class.qualifiedName
+
     ExtendedFloatingActionButton(
-        onClick = { onClick() },
+        onClick = {
+            if (isMapScreen) navController.navigate(com.alltrails.atlunch.navigation.ListScreen) else navController.navigate(
+                MapScreen
+            )
+            onClick()
+        },
         containerColor = MaterialTheme.colorScheme.primary,
         shape = MaterialTheme.shapes.small,
         icon = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_list),
+                painter = painterResource(id = if (isMapScreen) R.drawable.ic_map_filled else R.drawable.ic_list),
                 contentDescription = null // decorative element
             )
         },
-        text = { Text(text = stringResource(R.string.list)) },
+        text = { Text(text = stringResource(if (isMapScreen) R.string.map else R.string.list)) },
     )
 }
 
@@ -165,8 +170,7 @@ fun ToggleListMapFab(modifier: Modifier = Modifier, onClick: () -> Unit) {
 @Composable
 fun ToggleListMapFabPreview() {
     AtLunchTheme {
-        Scaffold(
-            topBar = { Header() },
+        Scaffold(topBar = { Header() },
             floatingActionButton = { ToggleListMapFab { } },
             floatingActionButtonPosition = FabPosition.Center,
             modifier = Modifier.fillMaxSize()

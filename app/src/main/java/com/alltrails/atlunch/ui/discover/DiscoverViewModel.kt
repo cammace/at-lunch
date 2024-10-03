@@ -1,5 +1,6 @@
 package com.alltrails.atlunch.ui.discover
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alltrails.atlunch.data.PlacesRepository
@@ -12,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DiscoverViewModel @Inject constructor(
-    placesRepository: PlacesRepository
+    private val savedStateHandle: SavedStateHandle, // TODO stash and restore search query state.
+    private val placesRepository: PlacesRepository
 ) : ViewModel() {
 
     val restaurants: StateFlow<Result<List<Restaurant>>> = placesRepository.restaurants
@@ -24,5 +26,4 @@ class DiscoverViewModel @Inject constructor(
             placesRepository.getNearbyRestaurants(center = LatLng(37.7807705, -122.4339193), radius = 500)
         }
     }
-
 }
