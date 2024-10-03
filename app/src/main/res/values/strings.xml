@@ -3,4 +3,9 @@
 
     <string name="list">List</string>
     <string name="map">Map</string>
+
+    <plurals name="user_rating_count_format">
+        <item quantity="one">%1$d review</item>
+        <item quantity="other">%1$d reviews</item>
+    </plurals>
 </resources>

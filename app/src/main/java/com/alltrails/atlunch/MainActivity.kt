@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,23 +40,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.alltrails.atlunch.ui.discover.DiscoverViewModel
+import com.alltrails.atlunch.ui.discover.list.ListScreen
+import com.alltrails.atlunch.ui.discover.map.MapScreen
 import com.alltrails.atlunch.ui.theme.AtLunchTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val viewModel: DiscoverViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             AtLunchTheme {
+                val state by viewModel.restaurants.collectAsState()
+
                 Scaffold(
                     topBar = { Header() },
                     floatingActionButton = { ToggleListMapFab { } },
                     floatingActionButtonPosition = FabPosition.Center,
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
-
+                    ListScreen(modifier = Modifier.padding(innerPadding), restaurants = if (state.isSuccess) state.getOrThrow() else emptyList())
                 }
             }
         }
@@ -62,11 +72,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Header(modifier: Modifier = Modifier) {
+fun Header() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .fillMaxWidth(1f)
+            .fillMaxWidth()
             .padding(top = 20.dp)
     ) {
         Image(
@@ -82,7 +92,7 @@ fun Header(modifier: Modifier = Modifier) {
             searching = false,
             modifier = Modifier.padding(all = 16.dp)
         )
-        HorizontalDivider() // TODO make sure this looks right
+        HorizontalDivider(color = Color(0xFFDBDAD2))
     }
 }
 
@@ -122,6 +132,7 @@ private fun SearchBar(
             Spacer(Modifier.width(8.dp))
             BasicTextField(
                 value = query,
+                textStyle = MaterialTheme.typography.bodyMedium,
                 singleLine = true,
                 onValueChange = onQueryChange,
                 modifier = Modifier
@@ -150,7 +161,7 @@ fun ToggleListMapFab(modifier: Modifier = Modifier, onClick: () -> Unit) {
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showSystemUi = true)
 @Composable
 fun ToggleListMapFabPreview() {
     AtLunchTheme {
@@ -160,7 +171,7 @@ fun ToggleListMapFabPreview() {
             floatingActionButtonPosition = FabPosition.Center,
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-
+            MapScreen(modifier = Modifier.padding(innerPadding))
         }
     }
 }
