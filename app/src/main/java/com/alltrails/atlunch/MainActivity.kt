@@ -42,10 +42,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.alltrails.atlunch.navigation.ListScreen
 import com.alltrails.atlunch.navigation.MapScreen
 import com.alltrails.atlunch.navigation.NavigationStack
 import com.alltrails.atlunch.ui.discover.DiscoverViewModel
-import com.alltrails.atlunch.ui.discover.map.MapScreen
 import com.alltrails.atlunch.ui.theme.AtLunchTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -60,8 +60,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             AtLunchTheme {
                 val navController = rememberNavController()
-                Scaffold(topBar = { Header() },
-                    floatingActionButton = { ToggleListMapFab(navController) { } },
+                Scaffold(
+                    topBar = { Header() },
+                    floatingActionButton = { ToggleListMapFab(navController) },
                     floatingActionButtonPosition = FabPosition.Center,
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
@@ -84,7 +85,8 @@ fun Header() {
                 painter = painterResource(id = R.drawable.logo_lockup),
                 contentDescription = null, // decorative element
             )
-            SearchBar(query = TextFieldValue("Search restaurants"),
+            SearchBar(
+                query = TextFieldValue("Search restaurants"),
                 onQueryChange = { },
                 searchFocused = false,
                 onSearchFocusChange = { },
@@ -143,26 +145,23 @@ private fun SearchBar(
 }
 
 @Composable
-fun ToggleListMapFab(navController: NavController = rememberNavController(), onClick: () -> Unit) {
+fun ToggleListMapFab(navController: NavController = rememberNavController()) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val isMapScreen = currentBackStackEntry?.destination?.route == MapScreen::class.qualifiedName
 
     ExtendedFloatingActionButton(
         onClick = {
-            if (isMapScreen) navController.navigate(com.alltrails.atlunch.navigation.ListScreen) else navController.navigate(
-                MapScreen
-            )
-            onClick()
+            if (isMapScreen) navController.navigate(ListScreen) else navController.navigate(MapScreen)
         },
         containerColor = MaterialTheme.colorScheme.primary,
         shape = MaterialTheme.shapes.small,
         icon = {
             Icon(
-                painter = painterResource(id = if (isMapScreen) R.drawable.ic_map_filled else R.drawable.ic_list),
+                painter = painterResource(id = if (isMapScreen) R.drawable.ic_list else R.drawable.ic_map_filled),
                 contentDescription = null // decorative element
             )
         },
-        text = { Text(text = stringResource(if (isMapScreen) R.string.map else R.string.list)) },
+        text = { Text(text = stringResource(if (isMapScreen) R.string.list else R.string.map)) },
     )
 }
 
@@ -170,12 +169,13 @@ fun ToggleListMapFab(navController: NavController = rememberNavController(), onC
 @Composable
 fun ToggleListMapFabPreview() {
     AtLunchTheme {
-        Scaffold(topBar = { Header() },
-            floatingActionButton = { ToggleListMapFab { } },
+        Scaffold(
+            topBar = { Header() },
+            floatingActionButton = { ToggleListMapFab() },
             floatingActionButtonPosition = FabPosition.Center,
             modifier = Modifier.fillMaxSize()
         ) { innerPadding ->
-            MapScreen(modifier = Modifier.padding(innerPadding))
+            NavigationStack(modifier = Modifier.padding(innerPadding))
         }
     }
 }
