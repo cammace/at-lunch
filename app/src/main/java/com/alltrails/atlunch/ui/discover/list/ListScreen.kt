@@ -89,7 +89,7 @@ private fun CardMetaData(restaurant: Restaurant) {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun RestaurantCardPreview() {
     val restaurant = Restaurant(
@@ -102,37 +102,5 @@ private fun RestaurantCardPreview() {
 
     AtLunchTheme {
         RestaurantCard(restaurant = restaurant)
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-private fun ListScreenPreview() {
-    val restaurants = listOf(
-        Restaurant(
-            name = "Starbucks",
-            rating = 4.5,
-            address = "San Francisco",
-            userRatingCount = 28,
-            latLng = LatLng(37.7807705, -122.4339193)
-        ),
-        Restaurant(
-            name = "Taco Bell",
-            rating = 2.3,
-            address = "San Francisco",
-            userRatingCount = 156,
-            latLng = LatLng(37.7807705, -122.4339193)
-        ),
-        Restaurant(
-            name = "Chick Fil A",
-            rating = 4.9,
-            address = "Mountain View",
-            userRatingCount = 1,
-            latLng = LatLng(37.7807705, -122.4339193)
-        ),
-    )
-
-    AtLunchTheme {
-        ListScreen()
     }
 }

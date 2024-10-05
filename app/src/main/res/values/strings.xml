@@ -3,6 +3,7 @@
 
     <string name="list">List</string>
     <string name="map">Map</string>
+    <string name="cd_restaurant_marker">Restaurant marker for %1$s</string>
 
     <plurals name="user_rating_count_format">
         <item quantity="one">%1$d review</item>
