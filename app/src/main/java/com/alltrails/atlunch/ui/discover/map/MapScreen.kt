@@ -82,6 +82,9 @@ private suspend fun updateCameraBounds(
     cameraPositionState: CameraPositionState
 ) {
     state.getOrNull()?.let { restaurants ->
+        // Avoid creating empty bounds when no restaurants are loaded.
+        if (restaurants.isEmpty()) return
+
         val markerBoundsBuilder = LatLngBounds.builder()
         restaurants.forEach { restaurant ->
             markerBoundsBuilder.include(restaurant.latLng)

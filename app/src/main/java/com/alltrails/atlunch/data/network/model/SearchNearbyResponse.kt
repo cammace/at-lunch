@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchNearbyResponse(
-    val places: List<Place>
+    val places: List<Place>? = emptyList()
 )

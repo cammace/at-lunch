@@ -26,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,8 +48,14 @@ import com.alltrails.atlunch.navigation.MapScreen
 import com.alltrails.atlunch.navigation.NavigationStack
 import com.alltrails.atlunch.ui.discover.DiscoverViewModel
 import com.alltrails.atlunch.ui.theme.AtLunchTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.MultiplePermissionsState
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
+@OptIn(ExperimentalPermissionsApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -60,15 +67,44 @@ class MainActivity : ComponentActivity() {
         setContent {
             AtLunchTheme {
                 val navController = rememberNavController()
+
                 Scaffold(
                     topBar = { Header() },
                     floatingActionButton = { ToggleListMapFab(navController) },
                     floatingActionButtonPosition = FabPosition.Center,
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
+                    val locationPermissionsState = rememberMultiplePermissionsState(
+                        listOf(
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        )
+                    )
+
+                    LocationPermissions(
+                        locationPermissionsState = locationPermissionsState,
+                        onPermissionGranted = { viewModel.onLocationPermissionGranted() }
+                    )
                     NavigationStack(modifier = Modifier.padding(innerPadding), navController = navController)
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+private fun LocationPermissions(
+    locationPermissionsState: MultiplePermissionsState,
+    onPermissionGranted: () -> Unit,
+) {
+    if (locationPermissionsState.permissions.any { it.status.isGranted }) {
+        Timber.d("Location permissions granted from within LocationPermissions")
+        onPermissionGranted()
+    } else {
+        Timber.d("Location permissions not granted. Requesting.")
+        LaunchedEffect(locationPermissionsState) {
+            locationPermissionsState.launchMultiplePermissionRequest()
         }
     }
 }

@@ -69,6 +69,7 @@ dependencies {
     // Kotlin
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.kotlinx.serialization.json)
 
     // Jetpack
@@ -83,10 +84,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.accompanist.permissions)
 
     // Google Play Services
     implementation(libs.play.services.maps)
     implementation(libs.play.services.maps.compose)
+    implementation(libs.play.services.location)
 
     // Dependency injection
     implementation(libs.hilt.androidx.navigation.compose)

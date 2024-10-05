@@ -28,9 +28,9 @@ class PlacesRepository @Inject constructor(
         // TODO: add caching. Simply get the data from network everytime for now.
         try {
             val response = network.getNearbyRestaurants(LocationRestriction(Circle(center, radius)))
-            _restaurants.value = Result.success(response.places.map { it.asExternalModel() })
+            _restaurants.value = Result.success(response.places?.map { it.asExternalModel() } ?: emptyList())
         } catch (e: Exception) {
-            Timber.e("Error getting nearby restaurants", e)
+            Timber.e(e, "Error getting nearby restaurants")
             _restaurants.value = Result.failure(e)
         }
     }
