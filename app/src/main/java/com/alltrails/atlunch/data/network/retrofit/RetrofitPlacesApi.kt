@@ -19,7 +19,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Retrofit API declaration for XKCD JSON API.
+ * Retrofit API declaration for Places JSON API.
  */
 private interface RetrofitPlacesApi {
 

@@ -1,4 +1,4 @@
-package com.alltrails.atlunch.ui.discover.list
+package com.alltrails.atlunch.ui.discover
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.alltrails.atlunch.R
 import com.alltrails.atlunch.data.model.Restaurant
-import com.alltrails.atlunch.ui.discover.DiscoverViewModel
 import com.alltrails.atlunch.ui.theme.AtLunchTheme
 import com.google.android.gms.maps.model.LatLng
 

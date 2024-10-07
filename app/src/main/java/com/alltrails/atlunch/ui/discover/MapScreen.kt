@@ -1,4 +1,4 @@
-package com.alltrails.atlunch.ui.discover.map
+package com.alltrails.atlunch.ui.discover
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.alltrails.atlunch.R
 import com.alltrails.atlunch.data.model.Restaurant
-import com.alltrails.atlunch.ui.discover.DiscoverViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -90,7 +89,7 @@ private suspend fun updateCameraBounds(
             markerBoundsBuilder.include(restaurant.latLng)
         }
         val markerBounds = markerBoundsBuilder.build()
-        cameraPositionState.animate(CameraUpdateFactory.newLatLngBounds(markerBounds, 16), 1000)
+        cameraPositionState.move(CameraUpdateFactory.newLatLngBounds(markerBounds, 16))
     }
 }
 
