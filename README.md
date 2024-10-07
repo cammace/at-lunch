@@ -13,8 +13,6 @@ SDK and the Places (New) API - the key will need to have both APIs enabled from 
 
 ## TODO
 
-- [ ] Display Restaurants as Markers on map.
-- [ ] Request location permissions and search for restaurants nearby current user location.
 - [ ] Connect Search field UI to utilize Places Text API search found
   in [app/src/main/java/com/alltrails/atlunch/data/PlacesRepository.kt].
 - [ ] Implement [Place Photo API](https://developers.google.com/maps/documentation/places/android-sdk/place-photos) and
