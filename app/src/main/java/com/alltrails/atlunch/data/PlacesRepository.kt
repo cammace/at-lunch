@@ -6,9 +6,8 @@ import com.alltrails.atlunch.data.network.PlacesRemoteDataSource
 import com.alltrails.atlunch.data.network.model.Circle
 import com.alltrails.atlunch.data.network.model.LatLng
 import com.alltrails.atlunch.data.network.model.LocationRestriction
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,23 +17,32 @@ class PlacesRepository @Inject constructor(
     private val network: PlacesRemoteDataSource
 ) {
 
-    private val _restaurants = MutableStateFlow<Result<List<Restaurant>>>(Result.success(emptyList()))
-    val restaurants: StateFlow<Result<List<Restaurant>>> = _restaurants.asStateFlow()
-
-    suspend fun getNearbyRestaurants(
+    fun getNearbyRestaurants(
         center: LatLng,
         radius: Int
-    ) {
-        // TODO: add caching. Simply get the data from network everytime for now.
+    ): Flow<Result<List<Restaurant>>> = flow {
+        // TODO: add caching. Simply getting the data from network everytime for now.
         try {
             val response = network.getNearbyRestaurants(LocationRestriction(Circle(center, radius)))
-            _restaurants.value = Result.success(response.places?.map { it.asExternalModel() } ?: emptyList())
+            emit(Result.success(response.places?.map { it.asExternalModel() } ?: emptyList()))
         } catch (e: Exception) {
             Timber.e(e, "Error getting nearby restaurants")
-            _restaurants.value = Result.failure(e)
+            emit(Result.failure(e))
         }
     }
 
     // TODO add debouncing to prevent rapid API calls.
-    suspend fun searchText(query: String) = network.searchText(query)
+    fun searchText(
+        query: String,
+        center: LatLng,
+        radius: Int
+    ): Flow<Result<List<Restaurant>>> = flow {
+        try {
+            val response = network.searchText(query, LocationRestriction(Circle(center, radius)))
+            emit(Result.success(response.places?.map { it.asExternalModel() } ?: emptyList()))
+        } catch (e: Exception) {
+            Timber.e(e, "Error searching for the restaurant using the \"$query\".")
+            emit(Result.failure(e))
+        }
+    }
 }

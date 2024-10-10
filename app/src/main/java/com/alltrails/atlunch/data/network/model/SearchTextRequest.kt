@@ -7,5 +7,6 @@ data class SearchTextRequest(
     val textQuery: String,
     val maxResultCount: Int,
     val strictTypeFiltering: Boolean,
-    val includedType: String
+    val includedType: String,
+    val locationBias: LocationRestriction
 )

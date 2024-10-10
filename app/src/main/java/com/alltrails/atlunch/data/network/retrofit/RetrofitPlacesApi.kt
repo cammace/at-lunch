@@ -65,10 +65,11 @@ class RetrofitPlacesRemoteDataSource @Inject constructor(
         return networkApi.searchNearbyPlaces(accessToken = BuildConfig.MAPS_API_KEY, requestBody = requestBody)
     }
 
-    override suspend fun searchText(query: String): SearchTextResponse {
+    override suspend fun searchText(query: String, locationRestriction: LocationRestriction): SearchTextResponse {
         // Create the request body
         val requestBody = SearchTextRequest(
             textQuery = query,
+            locationBias = locationRestriction,
             maxResultCount = 10,
             strictTypeFiltering = true,
             includedType = "restaurant"

@@ -4,7 +4,8 @@ import com.alltrails.atlunch.data.network.model.Place
 import com.google.android.gms.maps.model.LatLng
 
 data class Restaurant(
-    val name: String,
+    val id: String,
+    val displayName: String,
     val rating: Double,
     val address: String,
     val userRatingCount: Int,
@@ -12,7 +13,8 @@ data class Restaurant(
 )
 
 fun Place.asExternalModel() = Restaurant(
-    name = displayName?.text ?: "",
+    id = id,
+    displayName = displayName?.text ?: "",
     rating = rating ?: 0.0,
     address = formattedAddress,
     userRatingCount = userRatingCount ?: 0,

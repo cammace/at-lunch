@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,6 +14,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alltrails.atlunch.R
 import com.alltrails.atlunch.data.model.Restaurant
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -39,27 +39,33 @@ fun MapScreen(
     modifier: Modifier = Modifier,
     viewModel: DiscoverViewModel = hiltViewModel()
 ) {
-    val state by viewModel.restaurants.collectAsState()
+
+    val state by viewModel.discoveryUiState.collectAsStateWithLifecycle()
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(42.35728, -71.05232), 14f)
     }
     val scope = rememberCoroutineScope()
 
-    Box(
-        modifier = Modifier
-    ) {
-        AtLunchMap(
-            modifier = Modifier,
-            cameraPositionState = cameraPositionState,
-            onMapLoaded = {
-                scope.launch {
-                    updateCameraBounds(state, cameraPositionState)
+    when (val uiState = state) {
+        is DiscoveryUiState.Loading -> Unit // TODO show a loading UI
+        is DiscoveryUiState.LoadFailed -> Unit // TODO show an error state
+        is DiscoveryUiState.NoResults -> Unit // TODO show an empty state
+        is DiscoveryUiState.Success -> {
+            Box(
+                modifier = Modifier
+            ) {
+                AtLunchMap(
+                    modifier = Modifier,
+                    cameraPositionState = cameraPositionState,
+                    onMapLoaded = {
+                        scope.launch {
+                            updateCameraBounds(uiState.restaurants, cameraPositionState)
+                        }
+                    }
+                ) {
+                    AddMarkers(uiState.restaurants)
                 }
-            }
-        ) {
-            state.getOrNull()?.let { restaurants ->
-                AddMarkers(restaurants)
             }
         }
     }
@@ -70,27 +76,25 @@ private fun AddMarkers(state: List<Restaurant>, modifier: Modifier = Modifier) {
     state.forEach { restaurant ->
         val markerState = rememberMarkerState(
             position = restaurant.latLng,
-            key = restaurant.name
-        ) // TODO change restaurant so it includes id/name and rename current name variable to displayName
+            key = restaurant.displayName
+        )
         RestaurantMarker(modifier = modifier, markerState = markerState, restaurant = restaurant)
     }
 }
 
-private suspend fun updateCameraBounds(
-    state: Result<List<Restaurant>>,
+private fun updateCameraBounds(
+    restaurants: List<Restaurant>,
     cameraPositionState: CameraPositionState
 ) {
-    state.getOrNull()?.let { restaurants ->
-        // Avoid creating empty bounds when no restaurants are loaded.
-        if (restaurants.isEmpty()) return
+    // Avoid creating empty bounds when no restaurants are loaded.
+    if (restaurants.isEmpty()) return
 
-        val markerBoundsBuilder = LatLngBounds.builder()
-        restaurants.forEach { restaurant ->
-            markerBoundsBuilder.include(restaurant.latLng)
-        }
-        val markerBounds = markerBoundsBuilder.build()
-        cameraPositionState.move(CameraUpdateFactory.newLatLngBounds(markerBounds, 16))
+    val markerBoundsBuilder = LatLngBounds.builder()
+    restaurants.forEach { restaurant ->
+        markerBoundsBuilder.include(restaurant.latLng)
     }
+    val markerBounds = markerBoundsBuilder.build()
+    cameraPositionState.move(CameraUpdateFactory.newLatLngBounds(markerBounds, 16))
 }
 
 @Composable
@@ -101,11 +105,11 @@ fun RestaurantMarker(
     markerClick: (Marker) -> Boolean = { false }
 ) {
     MarkerComposable(
-        title = restaurant.name, // TODO disable opening default infowindow in favor of ist card UI
+        title = restaurant.displayName, // TODO disable opening default info window in favor of list card UI
 //        keys = , TODO animate icon changing when the user clicks on the marker.
         state = markerState,
         onClick = markerClick,
-        contentDescription = stringResource(R.string.cd_restaurant_marker, restaurant.name)
+        contentDescription = stringResource(R.string.cd_restaurant_marker, restaurant.displayName)
     ) {
         Image(
             painter = painterResource(id = R.drawable.marker_pin_resting),
@@ -138,15 +142,7 @@ fun AtLunchMap(
             )
         )
     }
-    val properties by remember {
-        mutableStateOf(
-            MapProperties(
-                mapType = MapType.NORMAL,
-//                isMyLocationEnabled = true,
-                latLngBoundsForCameraTarget = null // TODO provide initial camera position
-            )
-        )
-    }
+    val properties by remember { mutableStateOf(MapProperties(mapType = MapType.NORMAL)) }
 
     GoogleMap(
         modifier = modifier,
@@ -155,7 +151,7 @@ fun AtLunchMap(
         mapColorScheme = ComposeMapColorScheme.LIGHT,
         onMapLoaded = onMapLoaded,
         uiSettings = uiSettings,
-        locationSource = null, // TODO setup location source
+        locationSource = null,
     ) {
         content()
     }

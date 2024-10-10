@@ -4,6 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchTextResponse(
-    // Define the structure of the response for searchText here
-    val places: List<Place>
+    val places: List<Place>? = emptyList()
 )

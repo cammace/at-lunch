@@ -9,5 +9,5 @@ import com.alltrails.atlunch.data.network.model.SearchTextResponse
  */
 interface PlacesRemoteDataSource {
     suspend fun getNearbyRestaurants(locationRestriction: LocationRestriction): SearchNearbyResponse
-    suspend fun searchText(query: String): SearchTextResponse
+    suspend fun searchText(query: String, locationRestriction: LocationRestriction): SearchTextResponse
 }

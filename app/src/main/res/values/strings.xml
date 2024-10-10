@@ -4,6 +4,9 @@
     <string name="list">List</string>
     <string name="map">Map</string>
     <string name="cd_restaurant_marker">Restaurant marker for %1$s</string>
+    <string name="search_title">Search</string>
+    <string name="search_cd_clear_search_text">Clear search text</string>
+    <string name="search_hint">Search restaurants</string>
 
     <plurals name="user_rating_count_format">
         <item quantity="one">%1$d review</item>
