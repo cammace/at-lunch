@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.alltrails.atlunch.ui.discover.DiscoverViewModel
 import com.alltrails.atlunch.ui.discover.ListScreen
 import com.alltrails.atlunch.ui.discover.MapScreen
 import kotlinx.serialization.Serializable
@@ -24,7 +25,8 @@ private const val TRANSITION_ANIMATION_DURATION_MILLIS = 450
 @Composable
 fun NavigationStack(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    viewModel: DiscoverViewModel
 ) {
     NavHost(navController = navController, startDestination = ListScreen) {
         composable<ListScreen>(
@@ -41,7 +43,7 @@ fun NavigationStack(
                 )
             }
         ) {
-            ListScreen(modifier = modifier)
+            ListScreen(modifier = modifier, viewModel = viewModel)
         }
         composable<MapScreen>(
             enterTransition = {
@@ -57,7 +59,7 @@ fun NavigationStack(
                 )
             }
         ) {
-            MapScreen(modifier = modifier)
+            MapScreen(modifier = modifier, viewModel = viewModel)
         }
     }
 }

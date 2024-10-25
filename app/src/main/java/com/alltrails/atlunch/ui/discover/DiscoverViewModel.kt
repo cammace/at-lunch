@@ -113,7 +113,6 @@ class DiscoverViewModel @Inject constructor(
     }
 
     fun onSearchQueryChanged(query: String) {
-
         Timber.d("Search query changed: $query")
         savedStateHandle[KEY_SEARCH_QUERY] = query
     }

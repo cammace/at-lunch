@@ -92,7 +92,11 @@ class MainActivity : ComponentActivity() {
                         locationPermissionsState = locationPermissionsState,
                         onPermissionGranted = { viewModel.onLocationPermissionGranted() }
                     )
-                    NavigationStack(modifier = Modifier.padding(innerPadding), navController = navController)
+                    NavigationStack(
+                        modifier = Modifier.padding(innerPadding),
+                        navController = navController,
+                        viewModel = viewModel
+                    )
                 }
             }
         }
